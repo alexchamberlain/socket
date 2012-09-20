@@ -1,3 +1,4 @@
+# Copyright (c) Alex Chamberlain 2012
 from __future__ import print_function, division
 import random
 from math import ceil

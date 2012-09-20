@@ -1,3 +1,4 @@
+# Copyright (c) Alex Chamberlain 2012
 import socket
 import argparse
 from pprint import pprint

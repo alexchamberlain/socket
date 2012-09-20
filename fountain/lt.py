@@ -1,3 +1,4 @@
+# Copyright (c) Alex Chamberlain 2012
 from soliton import soliton
 import random
 from math import ceil, floor

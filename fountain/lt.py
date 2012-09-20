@@ -19,8 +19,13 @@ def lt_encode(source, blocksize=1024):
     r = bytearray(blocksize)
     for k in rng.sample(range(N), d):
       #sys.stdout.write("{:d}\t".format(k))
-      for j in range(blocksize):
-        r[j] ^= source[k*blocksize + j]
+      offset = k*blocksize
+      j      = 0
+      end    = min(offset + blocksize, n)
+      while offset < end:
+        r[j] ^= source[offset]
+        offset += 1
+        j      += 1
     
     #sys.stdout.write("\n");
     yield {"degree": d, "seed": seed, "data": r}
@@ -39,10 +44,13 @@ class node_original:
   def __init__(self, parent, original, i, blocksize=1024):
     self.parent    = parent
     self.known     = False
-    self.data      = memoryview(original)[i*blocksize:(i+1)*blocksize]
     self.i         = i
     self.edges     = set() # Set of droplets associated with this block
     self.blocksize = blocksize
+
+    offset         = i*blocksize
+    end            = offset + blocksize if offset + blocksize <= parent.n else parent.n
+    self.data      = memoryview(original)[i*blocksize:(i+1)*blocksize]
   
   def pop_edges(self):
     while len(self.edges):
@@ -62,7 +70,7 @@ class node_droplet:
   def __init__(self, parent, original_nodes, N, blocksize, degree, seed, data):
     self.parent = parent
     self.seed   = seed
-    self.data   = data
+    self.data   = bytearray(data)
     self.edges  = set()
 
     rng = random.Random(seed)
@@ -103,11 +111,11 @@ class node_droplet:
 
 class lt_decode:
   def __init__(self, n, blocksize=1024):
-    self.original  = bytearray(n)
-    self.n         = n
     self.N         = int(ceil(n/blocksize))
-    self.unknown_blocks = self.N
     self.blocksize = blocksize
+    self.n         = n
+    self.original  = bytearray(self.N*self.blocksize)
+    self.unknown_blocks = self.N
     self.original_nodes = []
     #self.droplets  = []
 
